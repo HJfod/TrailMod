@@ -38,6 +38,7 @@ static constexpr const int WaveStreakCount = 3;
 WaveStreak g_waveStreak = kWaveStreakDefault;
 
 static constexpr const int HARDSTREAK_MSTREAK_TAG = 5;
+static constexpr const char* WAVESTREAK_KEY = "WaveStreakMod_streak";
 
 class GJGarageLayer_CB : public GJGarageLayer {
     public:
@@ -79,6 +80,23 @@ bool __fastcall HardStreak_init(HardStreak* self) {
 
 //     if (g_waveStreak == kWaveStreakRainbow);
 // }
+
+GDMAKE_HOOK(0xcc500)
+void __fastcall GameManager_dataLoaded(GameManager* self, edx_t edx, DS_Dictionary* dict) {
+    GDMAKE_ORIG_V(self, edx, dict);
+
+    g_waveStreak = static_cast<WaveStreak>(dict->getIntegerForKey(WAVESTREAK_KEY));
+
+    if (g_waveStreak == 0)
+        g_waveStreak = kWaveStreakDefault;
+}
+
+GDMAKE_HOOK(0xcdd20)
+void __fastcall GameManager_encodeDataTo(GameManager* self, edx_t edx, DS_Dictionary* dict) {
+    GDMAKE_ORIG_V(self, edx, dict);
+
+    dict->setIntegerForKey(WAVESTREAK_KEY, g_waveStreak);
+}
 
 GDMAKE_HOOK(0x1f9080)
 void __fastcall PlayerObject_activateStreak(PlayerObject* self) {
